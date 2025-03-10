@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ const Login = () => {
     e.preventDefault();
     setError("");
     
-    // Simple validation
     if (!email || !password) {
       setError("Please enter both email and password");
       return;
@@ -34,11 +34,11 @@ const Login = () => {
 
     // Simulate authentication - in a real app, this would be an API call
     setTimeout(() => {
-      // For demo purposes, accept any credentials
       localStorage.setItem("userLoggedIn", "true");
       localStorage.setItem("userEmail", email);
       
       setIsLoading(false);
+      toast.success("Successfully logged in!");
       navigate("/dashboard");
     }, 1000);
   };
