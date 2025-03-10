@@ -1,324 +1,298 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ProjectCard, { ProjectCardProps } from "@/components/ProjectCard";
-import { Input } from "@/components/ui/input";
+import { ProjectCardProps } from "@/components/ProjectCard";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { MapPin, CalendarIcon, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter } from "lucide-react";
 
-// Sample project data
+// Sample project data (using the same data as in the Dashboard)
 const projectsData: ProjectCardProps[] = [
   {
     id: 1,
     title: "Municipal Water Supply Enhancement",
-    description: "Upgrading the water distribution network to improve supply efficiency and reduce water wastage across Bharuch city.",
+    description:
+      "Upgrading the water distribution network to improve supply efficiency and reduce water wastage across Bharuch city.",
     location: "Bharuch City",
     budget: "₹3.5 Crore",
     progress: 65,
     startDate: "Jan 2023",
     endDate: "Dec 2023",
     status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
     id: 2,
     title: "Rural Road Connectivity Project",
-    description: "Construction of all-weather roads connecting remote villages to main highways, enabling better access to markets and services.",
+    description:
+      "Construction of all-weather roads connecting remote villages to main highways, enabling better access to markets and services.",
     location: "Bharuch District",
     budget: "₹5.2 Crore",
     progress: 82,
     startDate: "Mar 2023",
     endDate: "Feb 2024",
     status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1582461833047-2aaf69c632c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1582461833047-2aaf69c632c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
     id: 3,
     title: "Solar-Powered Smart Schools",
-    description: "Implementation of solar panels in government schools to provide sustainable electricity and modern digital learning facilities.",
+    description:
+      "Implementation of solar panels in government schools to provide sustainable electricity and modern digital learning facilities.",
     location: "Multiple Locations",
     budget: "₹2.8 Crore",
     progress: 100,
     startDate: "Nov 2022",
     endDate: "Oct 2023",
     status: "completed",
-    imageUrl: "https://images.unsplash.com/photo-1629168249736-7719feda0a7a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1629168249736-7719feda0a7a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
     id: 4,
     title: "Urban Waste Management System",
-    description: "Development of integrated waste collection, segregation, and processing facilities to improve urban cleanliness and environmental sustainability.",
+    description:
+      "Development of integrated waste collection, segregation, and processing facilities to improve urban cleanliness and environmental sustainability.",
     location: "Bharuch Municipality",
     budget: "₹4.1 Crore",
     progress: 25,
     startDate: "Jul 2023",
     endDate: "Jun 2024",
     status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
     id: 5,
-    title: "Primary Healthcare Center Expansion",
-    description: "Expanding and upgrading primary healthcare centers across rural areas to improve healthcare accessibility and quality.",
-    location: "Rural Bharuch",
-    budget: "₹6.7 Crore",
+    title: "Healthcare Infrastructure Upgrade",
+    description:
+      "Renovating and equipping primary health centers across rural areas to improve healthcare accessibility and quality.",
+    location: "Bharuch District",
+    budget: "₹4.8 Crore",
     progress: 45,
-    startDate: "Feb 2023",
-    endDate: "Mar 2024",
+    startDate: "May 2023",
+    endDate: "Apr 2024",
     status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1578991624414-276ef23908bf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
     id: 6,
-    title: "Smart Traffic Management System",
-    description: "Implementation of AI-powered traffic signals and monitoring systems to reduce congestion and improve traffic flow in urban areas.",
-    location: "Bharuch City",
-    budget: "₹2.3 Crore",
-    progress: 100,
-    startDate: "Jul 2022",
-    endDate: "Jun 2023",
-    status: "completed",
-    imageUrl: "https://images.unsplash.com/photo-1573094844769-8c8e72205c14?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 7,
-    title: "Women's Skill Development Center",
-    description: "Establishing training centers for women to develop vocational skills and entrepreneurship capabilities, promoting economic independence.",
-    location: "Bharuch City",
-    budget: "₹1.8 Crore",
-    progress: 75,
-    startDate: "Nov 2022",
-    endDate: "Oct 2023",
-    status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1532649538693-f3a2ec1bf8bd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 8,
-    title: "Agricultural Irrigation Network",
-    description: "Development of modernized irrigation canals and water management systems to support agricultural productivity in rural areas.",
-    location: "Bharuch District",
-    budget: "₹8.5 Crore",
-    progress: 0,
-    startDate: "Oct 2023",
-    endDate: "Sep 2024",
-    status: "planned",
-    imageUrl: "https://images.unsplash.com/photo-1558905384-41f6b466d5be?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 9,
     title: "Digital Village Initiative",
-    description: "Providing digital infrastructure and internet connectivity to rural areas to bridge the digital divide and improve access to online services.",
-    location: "Rural Bharuch",
-    budget: "₹4.2 Crore",
-    progress: 35,
-    startDate: "Apr 2023",
-    endDate: "Mar 2024",
-    status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1526948531399-320e7e40f0ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 10,
-    title: "River Front Development",
-    description: "Beautification and development of the Narmada river front to create recreational spaces and promote tourism.",
-    location: "Bharuch City",
-    budget: "₹12.3 Crore",
-    progress: 15,
-    startDate: "May 2023",
-    endDate: "Apr 2025",
-    status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1473773508845-188df298d2d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 11,
-    title: "Vocational Training Centers",
-    description: "Setting up vocational training centers to provide skills development for youth and improve employability in modern sectors.",
-    location: "Multiple Locations",
-    budget: "₹3.7 Crore",
-    progress: 60,
+    description:
+      "Establishing digital infrastructure and training centers in villages to bridge the digital divide and promote e-governance.",
+    location: "Multiple Villages",
+    budget: "₹3.2 Crore",
+    progress: 70,
     startDate: "Feb 2023",
     endDate: "Jan 2024",
     status: "ongoing",
-    imageUrl: "https://images.unsplash.com/photo-1581092921461-39b9ced33e76?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 12,
-    title: "Urban Green Spaces Development",
-    description: "Creating and enhancing parks and green spaces in urban areas to improve air quality and provide recreational facilities for citizens.",
-    location: "Bharuch City",
-    budget: "₹2.1 Crore",
-    progress: 100,
-    startDate: "Jan 2022",
-    endDate: "Dec 2022",
-    status: "completed",
-    imageUrl: "https://images.unsplash.com/photo-1565109761376-8a9daa83e0a4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1544654803-3429ed142be4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
 ];
 
+// Filtering options
+const statusOptions = ["all", "ongoing", "completed", "planned"];
+const locationOptions = [
+  "all",
+  "Bharuch City",
+  "Bharuch District",
+  "Multiple Locations",
+  "Bharuch Municipality",
+  "Multiple Villages",
+];
+
 const Projects = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [locationFilter, setLocationFilter] = useState<string>("");
-  const [filteredProjects, setFilteredProjects] = useState<ProjectCardProps[]>(projectsData);
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [filteredProjects, setFilteredProjects] = useState(projectsData);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [animatedItems, setAnimatedItems] = useState(false);
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    // Check if user is logged in
+    const userLoggedIn = localStorage.getItem("userLoggedIn");
+    if (!userLoggedIn) {
+      navigate("/login");
+    } else {
+      setIsLoggedIn(true);
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Animation setup
+    const handleScroll = () => {
+      setAnimatedItems(true);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Check on initial load
+    
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [navigate]);
 
   useEffect(() => {
-    // Filter projects based on search query and filters
-    let filtered = projectsData;
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (project) =>
-          project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          project.location.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    // Apply filters
+    let result = projectsData;
+    
+    if (statusFilter !== "all") {
+      result = result.filter(project => project.status === statusFilter);
     }
-
-    if (statusFilter) {
-      filtered = filtered.filter((project) => project.status === statusFilter);
+    
+    if (locationFilter !== "all") {
+      result = result.filter(project => project.location === locationFilter);
     }
+    
+    setFilteredProjects(result);
+  }, [statusFilter, locationFilter]);
 
-    if (locationFilter) {
-      filtered = filtered.filter((project) =>
-        project.location.toLowerCase().includes(locationFilter.toLowerCase())
-      );
-    }
+  if (!isLoggedIn) {
+    return null; // Don't render until auth check is complete
+  }
 
-    setFilteredProjects(filtered);
-  }, [searchQuery, statusFilter, locationFilter]);
-
-  // Get unique locations for the filter
-  const locations = Array.from(new Set(projectsData.map((project) => project.location)));
+  const statusColors = {
+    ongoing: "bg-gov-yellow text-gray-800",
+    completed: "bg-gov-green text-white",
+    planned: "bg-gov-blue text-white",
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
-
-      <div className="flex-1 bg-gray-50 dark:bg-gray-900 pt-24">
+      <div className="flex-grow pt-24">
         <div className="container mx-auto px-4 md:px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Development Projects
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 max-w-3xl">
-              Explore all development projects in Bharuch district. Track progress, view details, and stay informed about initiatives that impact your community.
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search projects..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="w-full sm:w-40">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
-                      <SelectItem value="ongoing">Ongoing</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="planned">Planned</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="w-full sm:w-48">
-                  <Select value={locationFilter} onValueChange={setLocationFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Locations</SelectItem>
-                      {locations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setStatusFilter("");
-                    setLocationFilter("");
-                  }}
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                District Projects
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300">
+                Browse all development projects in Bharuch district
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0 grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full rounded-md border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-gov-blue focus:ring focus:ring-gov-blue focus:ring-opacity-50"
                 >
-                  <Filter className="h-4 w-4" />
-                  Reset
-                </Button>
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Location
+                </label>
+                <select
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="w-full rounded-md border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 py-2 px-3 shadow-sm focus:border-gov-blue focus:ring focus:ring-gov-blue focus:ring-opacity-50"
+                >
+                  {locationOptions.map((location) => (
+                    <option key={location} value={location}>
+                      {location === "all" ? "All Locations" : location}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, index) => (
-                <div
-                  key={index}
-                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md h-96 animate-pulse"
-                >
-                  <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
-                  <div className="p-6 space-y-4">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-full mt-6"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filteredProjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProjects.map((project) => (
-                <ProjectCard key={project.id} {...project} />
-              ))}
+          {filteredProjects.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 text-center">
+              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">
+                No projects found
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 mt-2">
+                Try adjusting your filters to see more projects
+              </p>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 dark:text-gray-500 text-lg mb-3">
-                No projects found matching your criteria
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchQuery("");
-                  setStatusFilter("");
-                  setLocationFilter("");
-                }}
-              >
-                Clear Filters
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProjects.map((project) => (
+                <Card
+                  key={project.id}
+                  className={`overflow-hidden transition-all duration-300 hover:shadow-lg animate-on-scroll ${
+                    animatedItems ? "animated" : ""
+                  }`}
+                >
+                  <div className="relative h-48">
+                    <img
+                      src={project.imageUrl}
+                      alt={project.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <Badge 
+                        className={`${
+                          project.status === "ongoing" 
+                            ? "bg-gov-yellow text-gray-800" 
+                            : project.status === "completed" 
+                            ? "bg-gov-green text-white" 
+                            : "bg-gov-blue text-white"
+                        }`}
+                      >
+                        {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                      {project.description}
+                    </p>
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-3">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      <span>{project.location}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
+                      <CalendarIcon className="h-4 w-4 mr-1" />
+                      <span>{project.startDate} - {project.endDate}</span>
+                    </div>
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-600 dark:text-gray-300">Progress</span>
+                        <span className="font-medium text-gov-blue">{project.progress}%</span>
+                      </div>
+                      <Progress value={project.progress} className="h-1.5" />
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {project.budget}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-gov-blue border-gov-blue hover:bg-gov-blue hover:text-white"
+                        onClick={() => navigate(`/projects/${project.id}`)}
+                      >
+                        View Details
+                        <ArrowRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
           )}
         </div>
       </div>
-
       <Footer />
     </div>
   );
