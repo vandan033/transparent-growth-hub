@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -18,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Sample project data
 const projectsData: ProjectCardProps[] = [
   {
-    id: 1,
+    id: "1",
     title: "Municipal Water Supply Enhancement",
     description:
       "Upgrading the water distribution network to improve supply efficiency and reduce water wastage across Bharuch city.",
@@ -32,7 +33,7 @@ const projectsData: ProjectCardProps[] = [
       "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
-    id: 2,
+    id: "2",
     title: "Rural Road Connectivity Project",
     description:
       "Construction of all-weather roads connecting remote villages to main highways, enabling better access to markets and services.",
@@ -46,7 +47,7 @@ const projectsData: ProjectCardProps[] = [
       "https://images.unsplash.com/photo-1582461833047-2aaf69c632c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
-    id: 3,
+    id: "3",
     title: "Solar-Powered Smart Schools",
     description:
       "Implementation of solar panels in government schools to provide sustainable electricity and modern digital learning facilities.",
@@ -60,7 +61,7 @@ const projectsData: ProjectCardProps[] = [
       "https://images.unsplash.com/photo-1629168249736-7719feda0a7a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
   },
   {
-    id: 4,
+    id: "4",
     title: "Urban Waste Management System",
     description:
       "Development of integrated waste collection, segregation, and processing facilities to improve urban cleanliness and environmental sustainability.",

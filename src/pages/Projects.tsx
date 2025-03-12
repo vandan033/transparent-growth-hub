@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -43,7 +44,7 @@ const Projects = () => {
         progress: project.progress,
         startDate: project.start_date,
         endDate: project.end_date,
-        status: project.status,
+        status: project.status as "ongoing" | "completed" | "planned", // Add type assertion here
         imageUrl: project.image_url || 'https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?ixlib=rb-4.0.3',
       }));
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
@@ -46,7 +45,7 @@ type ProjectDetailData = ProjectCardProps & {
 // Sample detailed projects data
 const projectsDetailData: ProjectDetailData[] = [
   {
-    id: 1,
+    id: "1",
     title: "Municipal Water Supply Enhancement",
     description:
       "Upgrading the water distribution network to improve supply efficiency and reduce water wastage across Bharuch city.",
@@ -140,7 +139,7 @@ const projectsDetailData: ProjectDetailData[] = [
     ]
   },
   {
-    id: 2,
+    id: "2",
     title: "Rural Road Connectivity Project",
     description:
       "Construction of all-weather roads connecting remote villages to main highways, enabling better access to markets and services.",
@@ -234,7 +233,7 @@ const projectsDetailData: ProjectDetailData[] = [
     ]
   },
   {
-    id: 3,
+    id: "3",
     title: "Solar-Powered Smart Schools",
     description:
       "Implementation of solar panels in government schools to provide sustainable electricity and modern digital learning facilities.",
@@ -328,7 +327,7 @@ const projectsDetailData: ProjectDetailData[] = [
     ]
   },
   {
-    id: 4,
+    id: "4",
     title: "Urban Waste Management System",
     description:
       "Development of integrated waste collection, segregation, and processing facilities to improve urban cleanliness and environmental sustainability.",
@@ -436,7 +435,8 @@ const ProjectDetail = () => {
 
     // Get project details
     if (id) {
-      const projectData = projectsDetailData.find(p => p.id === parseInt(id));
+      // Fix the comparison issue by using === for string comparison instead of checking for numeric equality
+      const projectData = projectsDetailData.find(p => p.id === id);
       if (projectData) {
         setProject(projectData);
       } else {
