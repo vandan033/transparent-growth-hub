@@ -1,67 +1,58 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { User, Lock, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { User, Lock, Eye, EyeOff, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/dashboard");
-      }
-    };
-    
-    checkSession();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/dashboard");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
-    if (!email || !password) {
-      setError("Please enter both email and password");
+    if (!email || !password || !confirmPassword) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
-        password
+        password,
       });
 
-      if (signInError) {
-        throw signInError;
+      if (signUpError) {
+        throw signUpError;
       }
 
       if (data.user) {
-        toast.success("Successfully logged in!");
-        navigate("/dashboard");
+        toast.success("Account created successfully! You can now log in.");
+        navigate("/login");
       }
     } catch (error: any) {
-      setError(error.message || "Failed to log in");
-      toast.error(error.message || "Failed to log in");
+      setError(error.message || "Failed to create account");
+      toast.error(error.message || "Failed to create account");
     } finally {
       setIsLoading(false);
     }
@@ -84,10 +75,10 @@ const Login = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Sign In
+              Create an Account
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              Access the project management dashboard
+              Sign up to access the project management dashboard
             </p>
           </div>
           
@@ -104,7 +95,7 @@ const Login = () => {
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="email"
@@ -147,23 +138,23 @@ const Login = () => {
               </div>
             </div>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Confirm Password
+              </label>
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-gov-blue focus:ring-gov-blue border-gray-300 rounded dark:border-gray-600"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="block w-full pl-10 pr-10 py-3 bg-gray-50 border-gray-300 rounded-md focus:ring-gov-blue focus:border-gov-blue dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Remember me
-                </label>
-              </div>
-              
-              <div className="text-sm">
-                <a href="#" className="font-medium text-gov-blue hover:text-gov-blue/80">
-                  Forgot your password?
-                </a>
               </div>
             </div>
             
@@ -173,16 +164,16 @@ const Login = () => {
                 disabled={isLoading}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gov-blue hover:bg-gov-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gov-blue disabled:opacity-70"
               >
-                {isLoading ? "Signing in..." : "Sign in"}
+                {isLoading ? "Creating account..." : "Sign up"}
               </button>
             </div>
           </form>
           
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600 dark:text-gray-300">
-              Don't have an account?{" "}
-              <Link to="/signup" className="font-medium text-gov-blue hover:text-gov-blue/80">
-                Sign up
+              Already have an account?{" "}
+              <Link to="/login" className="font-medium text-gov-blue hover:text-gov-blue/80">
+                Sign in
               </Link>
             </p>
           </div>
@@ -198,4 +189,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
