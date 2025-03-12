@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -13,112 +12,61 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Progress } from "@/components/ui/progress";
-import { ProjectCardProps } from "@/components/ProjectCard";
+import { useProjects } from "@/hooks/useProjects";
 import { supabase } from "@/integrations/supabase/client";
-
-// Sample project data
-const projectsData: ProjectCardProps[] = [
-  {
-    id: "1",
-    title: "Municipal Water Supply Enhancement",
-    description:
-      "Upgrading the water distribution network to improve supply efficiency and reduce water wastage across Bharuch city.",
-    location: "Bharuch City",
-    budget: "₹3.5 Crore",
-    progress: 65,
-    startDate: "Jan 2023",
-    endDate: "Dec 2023",
-    status: "ongoing",
-    imageUrl:
-      "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: "2",
-    title: "Rural Road Connectivity Project",
-    description:
-      "Construction of all-weather roads connecting remote villages to main highways, enabling better access to markets and services.",
-    location: "Bharuch District",
-    budget: "₹5.2 Crore",
-    progress: 82,
-    startDate: "Mar 2023",
-    endDate: "Feb 2024",
-    status: "ongoing",
-    imageUrl:
-      "https://images.unsplash.com/photo-1582461833047-2aaf69c632c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: "3",
-    title: "Solar-Powered Smart Schools",
-    description:
-      "Implementation of solar panels in government schools to provide sustainable electricity and modern digital learning facilities.",
-    location: "Multiple Locations",
-    budget: "₹2.8 Crore",
-    progress: 100,
-    startDate: "Nov 2022",
-    endDate: "Oct 2023",
-    status: "completed",
-    imageUrl:
-      "https://images.unsplash.com/photo-1629168249736-7719feda0a7a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: "4",
-    title: "Urban Waste Management System",
-    description:
-      "Development of integrated waste collection, segregation, and processing facilities to improve urban cleanliness and environmental sustainability.",
-    location: "Bharuch Municipality",
-    budget: "₹4.1 Crore",
-    progress: 25,
-    startDate: "Jul 2023",
-    endDate: "Jun 2024",
-    status: "ongoing",
-    imageUrl:
-      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-  },
-];
-
-// Sample statistics
-const statistics = {
-  totalProjects: 32,
-  completedProjects: 12,
-  ongoingProjects: 16,
-  plannedProjects: 4,
-  totalBudget: "₹48.5 Cr",
-  utilisedBudget: "₹23.2 Cr",
-  projectsByCategory: [
-    { name: "Infrastructure", count: 12 },
-    { name: "Education", count: 8 },
-    { name: "Healthcare", count: 6 },
-    { name: "Agriculture", count: 4 },
-    { name: "Others", count: 2 },
-  ],
-  projectsByLocation: [
-    { name: "Bharuch City", count: 14 },
-    { name: "Ankleshwar", count: 8 },
-    { name: "Jambusar", count: 4 },
-    { name: "Vagra", count: 3 },
-    { name: "Others", count: 3 },
-  ],
-};
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [animatedItems, setAnimatedItems] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: projects, isLoading, error } = useProjects();
+
+  const statistics = {
+    totalProjects: projects?.length || 0,
+    completedProjects: projects?.filter(p => p.status === "completed").length || 0,
+    ongoingProjects: projects?.filter(p => p.status === "ongoing").length || 0,
+    plannedProjects: projects?.filter(p => p.status === "planned").length || 0,
+    totalBudget: projects?.reduce((acc, curr) => {
+      const amount = parseFloat(curr.budget.replace(/[^0-9.-]+/g, ""));
+      return acc + (isNaN(amount) ? 0 : amount);
+    }, 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) || "₹0",
+    utilisedBudget: "Calculating...",
+    projectsByCategory: [
+      { name: "Infrastructure", count: projects?.filter(p => p.title.toLowerCase().includes("infrastructure")).length || 0 },
+      { name: "Education", count: projects?.filter(p => p.title.toLowerCase().includes("education")).length || 0 },
+      { name: "Healthcare", count: projects?.filter(p => p.title.toLowerCase().includes("healthcare")).length || 0 },
+      { name: "Agriculture", count: projects?.filter(p => p.title.toLowerCase().includes("agriculture")).length || 0 },
+      { name: "Others", count: projects?.filter(p => 
+        !p.title.toLowerCase().includes("infrastructure") && 
+        !p.title.toLowerCase().includes("education") && 
+        !p.title.toLowerCase().includes("healthcare") && 
+        !p.title.toLowerCase().includes("agriculture")
+      ).length || 0 },
+    ],
+    projectsByLocation: [
+      { name: "Bharuch City", count: projects?.filter(p => p.location.includes("Bharuch")).length || 0 },
+      { name: "Ankleshwar", count: projects?.filter(p => p.location.includes("Ankleshwar")).length || 0 },
+      { name: "Jambusar", count: projects?.filter(p => p.location.includes("Jambusar")).length || 0 },
+      { name: "Vagra", count: projects?.filter(p => p.location.includes("Vagra")).length || 0 },
+      { name: "Others", count: projects?.filter(p => 
+        !p.location.includes("Bharuch") && 
+        !p.location.includes("Ankleshwar") && 
+        !p.location.includes("Jambusar") && 
+        !p.location.includes("Vagra")
+      ).length || 0 },
+    ],
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // First check Supabase session
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
           setIsLoggedIn(true);
-          // Ensure localStorage is in sync with the session
           localStorage.setItem("userLoggedIn", "true");
           localStorage.setItem("userEmail", session.user.email);
         } else {
-          // If no active session, check localStorage as fallback
           const userLoggedIn = localStorage.getItem("userLoggedIn");
           if (!userLoggedIn) {
             navigate("/login");
@@ -136,7 +84,6 @@ const Dashboard = () => {
 
     checkAuth();
 
-    // Animation setup
     const handleScroll = () => {
       const dashboard = document.getElementById("dashboard-content");
       if (!dashboard) return;
@@ -150,8 +97,8 @@ const Dashboard = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Check on initial load
-    
+    handleScroll();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navigate]);
 
@@ -166,23 +113,32 @@ const Dashboard = () => {
     );
   }
 
-  if (!isLoggedIn) {
-    return null; // Don't render anything until auth check is complete
+  if (error) {
+    console.error("Error loading projects:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center text-red-600">
+          <p>Error loading dashboard data. Please try again later.</p>
+        </div>
+      </div>
+    );
   }
+
+  if (!isLoggedIn) {
+    return null;
+  }
+
+  const projectsAtRisk = projects?.filter(p => p.progress < 30 && p.status === "ongoing") || [];
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
-      <div 
-        id="dashboard-content" 
-        className="flex-grow pt-24"
-      >
+      <div id="dashboard-content" className="flex-grow pt-24">
         <div className="container mx-auto px-4 md:px-6 py-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
             Project Dashboard
           </h1>
 
-          {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div 
               className={`bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md animate-on-scroll ${
@@ -267,12 +223,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Projects Table */}
-          <div 
-            className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 animate-on-scroll ${
-              animatedItems ? "animated" : ""
-            }`}
-          >
+          <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 animate-on-scroll ${
+            animatedItems ? "animated" : ""
+          }`}>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Recent Projects
             </h2>
@@ -288,7 +241,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projectsData.map((project) => (
+                  {projects?.slice(0, 4).map((project) => (
                     <tr 
                       key={project.id} 
                       className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer"
@@ -332,7 +285,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Categories and Locations */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div 
               className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 animate-on-scroll ${
@@ -389,7 +341,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Alert Section */}
           <div 
             className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 animate-on-scroll ${
               animatedItems ? "animated" : ""
@@ -407,18 +358,17 @@ const Dashboard = () => {
                   Projects Requiring Attention
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  The following projects are at risk of delays or have other issues:
+                  The following projects are at risk of delays or have low progress:
                 </p>
                 <ul className="list-disc pl-5 space-y-2 text-gray-600 dark:text-gray-300">
-                  <li>
-                    <span className="font-medium">Urban Waste Management System</span> - Budget allocation pending
-                  </li>
-                  <li>
-                    <span className="font-medium">Jambusar Community Center</span> - Regulatory approvals delayed
-                  </li>
-                  <li>
-                    <span className="font-medium">Ankleshwar Industrial Corridor</span> - Environmental clearance required
-                  </li>
+                  {projectsAtRisk.map(project => (
+                    <li key={project.id}>
+                      <span className="font-medium">{project.title}</span> - Progress at {project.progress}%
+                    </li>
+                  ))}
+                  {projectsAtRisk.length === 0 && (
+                    <li>No projects currently at risk</li>
+                  )}
                 </ul>
               </div>
             </div>
@@ -431,4 +381,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
