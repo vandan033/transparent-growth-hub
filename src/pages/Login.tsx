@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,14 +15,26 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const userLoggedIn = localStorage.getItem("userLoggedIn");
-    if (userLoggedIn) {
-      navigate("/dashboard");
-    }
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    
+    checkSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
@@ -31,15 +45,26 @@ const Login = () => {
 
     setIsLoading(true);
 
-    // Simulate authentication - in a real app, this would be an API call
-    setTimeout(() => {
-      localStorage.setItem("userLoggedIn", "true");
-      localStorage.setItem("userEmail", email);
-      
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) {
+        throw signInError;
+      }
+
+      if (data.user) {
+        toast.success("Successfully logged in!");
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      setError(error.message || "Failed to log in");
+      toast.error(error.message || "Failed to log in");
+    } finally {
       setIsLoading(false);
-      toast.success("Successfully logged in!");
-      navigate("/dashboard");
-    }, 1000);
+    }
   };
 
   return (
