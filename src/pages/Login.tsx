@@ -18,6 +18,9 @@ const Login = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // Store login status in localStorage for components that check it
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("userEmail", session.user.email);
         navigate("/dashboard");
       }
     };
@@ -27,6 +30,9 @@ const Login = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        // Update localStorage when auth state changes
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("userEmail", session.user.email);
         navigate("/dashboard");
       }
     });
@@ -56,6 +62,10 @@ const Login = () => {
       }
 
       if (data.user) {
+        // Set localStorage items for auth state
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("userEmail", data.user.email);
+        
         toast.success("Successfully logged in!");
         navigate("/dashboard");
       }

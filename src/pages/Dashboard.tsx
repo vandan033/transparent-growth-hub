@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -14,6 +13,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Progress } from "@/components/ui/progress";
 import { ProjectCardProps } from "@/components/ProjectCard";
+import { supabase } from "@/integrations/supabase/client";
 
 // Sample project data
 const projectsData: ProjectCardProps[] = [
@@ -103,15 +103,37 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [animatedItems, setAnimatedItems] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const userLoggedIn = localStorage.getItem("userLoggedIn");
-    if (!userLoggedIn) {
-      navigate("/login");
-    } else {
-      setIsLoggedIn(true);
-    }
+    const checkAuth = async () => {
+      try {
+        // First check Supabase session
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          setIsLoggedIn(true);
+          // Ensure localStorage is in sync with the session
+          localStorage.setItem("userLoggedIn", "true");
+          localStorage.setItem("userEmail", session.user.email);
+        } else {
+          // If no active session, check localStorage as fallback
+          const userLoggedIn = localStorage.getItem("userLoggedIn");
+          if (!userLoggedIn) {
+            navigate("/login");
+            return;
+          }
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        navigate("/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
 
     // Animation setup
     const handleScroll = () => {
@@ -131,6 +153,17 @@ const Dashboard = () => {
     
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-gov-blue border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return null; // Don't render anything until auth check is complete
@@ -397,3 +430,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
