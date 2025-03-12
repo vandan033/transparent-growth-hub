@@ -30,6 +30,153 @@ export type Database = {
         }
         Relationships: []
       }
+      project_contacts: {
+        Row: {
+          contact_type: string
+          contact_value: string
+          created_at: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          contact_type: string
+          contact_value: string
+          created_at?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          contact_type?: string
+          contact_value?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_contacts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_documents: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_url: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_url: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_milestones: {
+        Row: {
+          completion_percentage: number
+          created_at: string
+          id: string
+          is_completed: boolean
+          project_id: string
+          title: string
+        }
+        Insert: {
+          completion_percentage: number
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          project_id: string
+          title: string
+        }
+        Update: {
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          project_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          budget: string
+          created_at: string
+          department: string | null
+          description: string
+          end_date: string
+          id: string
+          image_url: string | null
+          location: string
+          progress: number
+          start_date: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          budget: string
+          created_at?: string
+          department?: string | null
+          description: string
+          end_date: string
+          id?: string
+          image_url?: string | null
+          location: string
+          progress?: number
+          start_date: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          budget?: string
+          created_at?: string
+          department?: string | null
+          description?: string
+          end_date?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          progress?: number
+          start_date?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
