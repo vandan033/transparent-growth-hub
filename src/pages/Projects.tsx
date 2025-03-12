@@ -137,9 +137,7 @@ const Projects = () => {
               {projects.map((project) => (
                 <Card
                   key={project.id}
-                  className={`overflow-hidden transition-all duration-300 hover:shadow-lg animate-on-scroll ${
-                    animatedItems ? "animated" : ""
-                  }`}
+                  className="overflow-hidden transition-all duration-300 hover:shadow-lg"
                 >
                   <div className="relative h-48">
                     <img

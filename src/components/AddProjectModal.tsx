@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, Upload } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AddProjectModalProps {
@@ -91,6 +91,9 @@ const AddProjectModal = ({ open, onOpenChange, onProjectAdded }: AddProjectModal
     setIsSubmitting(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       let imageUrl = "";
       if (imageFile) {
         const { data: imageData, error: imageError } = await supabase.storage
@@ -104,9 +107,17 @@ const AddProjectModal = ({ open, onOpenChange, onProjectAdded }: AddProjectModal
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .insert({
-          ...formData,
+          title: formData.title,
+          description: formData.description,
+          location: formData.location,
+          budget: formData.budget,
+          department: formData.department,
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+          status: formData.status,
           image_url: imageUrl,
           progress: 0,
+          user_id: user.id // Add user_id here
         })
         .select()
         .single();

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 
 export interface ProjectCardProps {
-  id: number;
+  id: string;  // Changed from number to string to match UUID from Supabase
   title: string;
   description: string;
   location: string;
